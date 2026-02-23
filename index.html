@@ -1,0 +1,1135 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Claude&nbsp;Code 勉強会 | SHIFT AI スタッフ向け</title>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700;900&family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #00B8D9;
+      --primary-dark: #0891B2;
+      --primary-light: #38D6F5;
+      --accent: #F59E0B;
+      --accent-dark: #D97706;
+      --cyan: #00E5FF;
+      --bg: #F0FBFF;
+      --bg-dark: #E0F5FA;
+      --white: #FFFFFF;
+      --dark: #050D18;
+      --text: #0A1628;
+      --text-muted: #4A6B88;
+      --border: rgba(0, 184, 217, 0.15);
+      --shadow: 0 4px 24px rgba(0, 184, 217, 0.12);
+      --shadow-lg: 0 12px 48px rgba(0, 184, 217, 0.2);
+      --radius: 16px;
+      --radius-sm: 8px;
+      --radius-lg: 24px;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Noto Sans JP', 'Inter', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.8;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    a { text-decoration: none; color: inherit; }
+
+    img { max-width: 100%; }
+
+    /* ===================== SCROLL BAR ===================== */
+    .scroll-indicator {
+      position: fixed; top: 0; left: 0;
+      height: 3px;
+      background: linear-gradient(90deg, var(--primary), var(--accent));
+      z-index: 300; width: 0%;
+      transition: width 0.1s linear;
+    }
+
+    /* ===================== NAV ===================== */
+    #mainNav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 200;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 20px 48px;
+      transition: background 0.3s, box-shadow 0.3s, padding 0.3s;
+    }
+    #mainNav.scrolled {
+      background: rgba(255,255,255,0.95);
+      backdrop-filter: blur(16px);
+      box-shadow: 0 2px 24px rgba(0,0,0,0.08);
+      padding: 14px 48px;
+    }
+    .nav-logo {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: #fff;
+      letter-spacing: -0.02em;
+      transition: color 0.3s;
+    }
+    .nav-logo span { color: var(--accent); }
+    #mainNav.scrolled .nav-logo { color: var(--text); }
+    .nav-links {
+      display: flex; gap: 32px; list-style: none;
+    }
+    .nav-links a {
+      font-size: 0.9rem; font-weight: 500;
+      color: rgba(255,255,255,0.8);
+      transition: color 0.2s;
+    }
+    .nav-links a:hover { color: #fff; }
+    #mainNav.scrolled .nav-links a { color: var(--text-muted); }
+    #mainNav.scrolled .nav-links a:hover { color: var(--primary); }
+    .nav-cta {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 10px 24px; border-radius: 50px;
+      background: var(--accent); color: #fff;
+      font-size: 0.875rem; font-weight: 700;
+      transition: transform 0.2s, box-shadow 0.2s;
+      box-shadow: 0 4px 16px rgba(245,158,11,0.35);
+    }
+    .nav-cta:hover { transform: translateY(-1px); box-shadow: 0 6px 24px rgba(245,158,11,0.5); }
+    .nav-cta .material-icons { font-size: 16px; }
+
+    /* ===================== HERO ===================== */
+    .hero {
+      min-height: 100vh;
+      display: flex; align-items: center;
+      background-image: url(hero-bg.png);
+      background-size: cover;
+      background-position: center center;
+      position: relative; overflow: hidden;
+      padding: 120px 0 80px;
+    }
+    /* 左側ダーク＋全体暗めオーバーレイ */
+    .hero::before {
+      content: '';
+      position: absolute; inset: 0;
+      background:
+        linear-gradient(to right, rgba(2,10,18,0.88) 0%, rgba(2,10,18,0.75) 45%, rgba(2,10,18,0.35) 75%, rgba(2,10,18,0.2) 100%),
+        linear-gradient(to bottom, rgba(2,10,18,0.3) 0%, transparent 30%, transparent 70%, rgba(2,10,18,0.5) 100%);
+      z-index: 0;
+    }
+    .hero-blob {
+      position: absolute; border-radius: 50%;
+      filter: blur(80px); pointer-events: none;
+    }
+    .blob-1 { width: 600px; height: 600px; background: rgba(0,184,217,0.10); top: -100px; right: -100px; animation: float 10s ease-in-out infinite; }
+    .blob-2 { width: 400px; height: 400px; background: rgba(245,158,11,0.06); bottom: -50px; left: -80px; animation: float 13s ease-in-out infinite reverse; }
+    .blob-3 { width: 300px; height: 300px; background: rgba(0,229,255,0.05); top: 50%; left: 30%; animation: float 9s ease-in-out infinite 2s; }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0) scale(1); }
+      50% { transform: translateY(-24px) scale(1.04); }
+    }
+
+    .hero-inner {
+      width: 100%;
+      padding: 0 max(40px, 6vw);
+      position: relative; z-index: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      box-sizing: border-box;
+    }
+    .hero-content { max-width: 560px; }
+    .hero-eyebrow {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: rgba(255,255,255,0.1);
+      border: 1px solid rgba(255,255,255,0.2);
+      backdrop-filter: blur(8px);
+      padding: 8px 20px; border-radius: 50px;
+      color: rgba(255,255,255,0.9);
+      font-size: 0.875rem; font-weight: 500;
+      margin-bottom: 32px;
+      word-break: keep-all;
+    }
+    .hero-eyebrow .material-icons { font-size: 16px; color: var(--accent); }
+
+    .hero h1 {
+      font-size: clamp(2.2rem, 5.5vw, 3.8rem);
+      font-weight: 900;
+      line-height: 1.18;
+      color: #fff;
+      letter-spacing: -0.03em;
+      margin-bottom: 28px;
+      word-break: keep-all;
+    }
+    .hero h1 .accent-word { color: var(--accent); display: block; }
+
+    .hero-sub {
+      font-size: clamp(1rem, 2vw, 1.2rem);
+      color: rgba(255,255,255,0.75);
+      max-width: 600px;
+      line-height: 1.9;
+      margin-bottom: 48px;
+    }
+
+    .hero-actions { display: flex; gap: 16px; flex-wrap: wrap; align-items: center; }
+
+    .btn-primary {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 18px 40px; border-radius: 50px;
+      background: var(--accent); color: #fff;
+      font-size: 1.05rem; font-weight: 700;
+      transition: transform 0.2s, box-shadow 0.2s;
+      box-shadow: 0 6px 28px rgba(245,158,11,0.4);
+    }
+    .btn-primary:hover { transform: translateY(-3px); box-shadow: 0 10px 40px rgba(245,158,11,0.55); }
+    .btn-primary .material-icons { font-size: 20px; }
+
+    .btn-secondary {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 18px 36px; border-radius: 50px;
+      background: rgba(255,255,255,0.1);
+      border: 1px solid rgba(255,255,255,0.25);
+      color: rgba(255,255,255,0.9);
+      font-size: 1rem; font-weight: 500;
+      backdrop-filter: blur(8px);
+      transition: background 0.2s, border-color 0.2s;
+    }
+    .btn-secondary:hover { background: rgba(255,255,255,0.18); border-color: rgba(255,255,255,0.4); }
+    .btn-secondary .material-icons { font-size: 18px; }
+
+    .hero-note {
+      margin-top: 20px;
+      font-size: 0.8rem; color: rgba(255,255,255,0.45);
+      display: flex; align-items: center; gap: 6px;
+    }
+    .hero-note .material-icons { font-size: 14px; }
+
+
+    /* ===================== SECTION COMMON ===================== */
+    .section-inner {
+      max-width: 1100px; margin: 0 auto; padding: 0 24px;
+    }
+    section { padding: 96px 0; }
+
+    .section-eyebrow {
+      display: inline-block;
+      font-size: 0.8rem; font-weight: 700;
+      letter-spacing: 0.12em; text-transform: uppercase;
+      color: var(--primary); margin-bottom: 16px;
+    }
+    .section-title {
+      font-size: clamp(1.6rem, 3.5vw, 2.5rem);
+      font-weight: 800; line-height: 1.25;
+      letter-spacing: -0.02em;
+      margin-bottom: 20px;
+    }
+    .section-title .accent { color: var(--primary); }
+    .section-lead {
+      font-size: 1.05rem; color: var(--text-muted);
+      max-width: 600px; line-height: 1.9;
+      margin-bottom: 56px;
+      word-break: keep-all;
+      overflow-wrap: break-word;
+    }
+    .section-center { text-align: center; }
+    .section-center .section-lead { margin-left: auto; margin-right: auto; }
+
+    /* ===================== CRISIS ===================== */
+    .section-crisis { background: var(--white); }
+
+    .crisis-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+      margin-top: 8px;
+    }
+    .crisis-card {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 36px 28px;
+      position: relative;
+      overflow: hidden;
+      transition: transform 0.25s, box-shadow 0.25s;
+    }
+    .crisis-card::before {
+      content: '';
+      position: absolute; top: 0; left: 0; right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, var(--primary), var(--accent));
+    }
+    .crisis-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-lg); }
+
+    .crisis-icon-wrap {
+      width: 52px; height: 52px; border-radius: var(--radius-sm);
+      background: linear-gradient(135deg, var(--primary), var(--primary-light));
+      display: flex; align-items: center; justify-content: center;
+      margin-bottom: 20px;
+    }
+    .crisis-icon-wrap .material-icons { color: #fff; font-size: 24px; }
+
+    .crisis-card h3 {
+      font-size: 1.05rem; font-weight: 700;
+      margin-bottom: 12px; line-height: 1.5;
+      word-break: keep-all; overflow-wrap: break-word;
+    }
+    .crisis-card p { font-size: 0.9rem; color: var(--text-muted); line-height: 1.85; word-break: keep-all; overflow-wrap: break-word; }
+
+    .crisis-cta-row {
+      margin-top: 56px;
+      background: linear-gradient(135deg, var(--dark) 0%, #071828 100%);
+      border-radius: var(--radius-lg);
+      padding: 48px;
+      display: flex; align-items: center; justify-content: space-between; gap: 32px;
+      border: 1px solid rgba(0,184,217,0.12);
+    }
+    .crisis-cta-text h3 {
+      font-size: 1.4rem; font-weight: 800;
+      color: #fff; margin-bottom: 10px; letter-spacing: -0.01em;
+    }
+    .crisis-cta-text p { color: rgba(255,255,255,0.7); font-size: 0.95rem; }
+
+    /* ===================== POSSIBILITY ===================== */
+    .section-possibility {
+      background: linear-gradient(180deg, var(--bg-dark) 0%, var(--bg) 100%);
+    }
+
+    .possibility-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+    }
+    .poss-card {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 28px 24px;
+      transition: transform 0.25s, box-shadow 0.25s;
+    }
+    .poss-card:hover { transform: translateY(-4px); box-shadow: var(--shadow); }
+
+    .poss-card-header {
+      display: flex; align-items: center; gap: 12px;
+      margin-bottom: 16px;
+    }
+    .poss-dept-badge {
+      font-size: 0.72rem; font-weight: 700;
+      letter-spacing: 0.08em;
+      padding: 4px 12px; border-radius: 50px;
+      background: var(--bg-dark);
+      color: var(--primary);
+    }
+
+    .poss-card h3 {
+      font-size: 1rem; font-weight: 700; margin-bottom: 12px;
+      word-break: keep-all; overflow-wrap: break-word;
+    }
+    .poss-list {
+      list-style: none; display: flex; flex-direction: column; gap: 8px;
+    }
+    .poss-list li {
+      display: flex; align-items: flex-start; gap: 8px;
+      font-size: 0.875rem; color: var(--text-muted); line-height: 1.6;
+    }
+    .poss-list li .material-icons {
+      font-size: 16px; color: var(--primary-light);
+      flex-shrink: 0; margin-top: 2px;
+    }
+
+    .poss-highlight {
+      grid-column: 1 / -1;
+      background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+      color: #fff;
+      border: none;
+    }
+    .poss-highlight .poss-dept-badge { background: rgba(255,255,255,0.2); color: #fff; }
+    .poss-highlight h3 { color: #fff; font-size: 1.1rem; }
+    .poss-highlight .poss-list { flex-direction: row; flex-wrap: wrap; gap: 12px; }
+    .poss-highlight .poss-list li { color: rgba(255,255,255,0.85); }
+    .poss-highlight .poss-list li .material-icons { color: var(--accent); }
+
+    /* ===================== STEPS ===================== */
+    .section-steps { background: var(--white); }
+
+    .steps-container {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0;
+      position: relative;
+    }
+    .steps-container::before {
+      content: '';
+      position: absolute;
+      top: 44px; left: calc(16.66% + 24px); right: calc(16.66% + 24px);
+      height: 2px;
+      background: linear-gradient(90deg, var(--primary-light), var(--accent));
+      z-index: 0;
+    }
+    .step-item { padding: 0 24px; position: relative; z-index: 1; }
+
+    .step-num-wrap {
+      width: 88px; height: 88px; border-radius: 50%;
+      background: linear-gradient(135deg, var(--primary-dark), var(--primary));
+      display: flex; align-items: center; justify-content: center;
+      margin: 0 auto 28px;
+      box-shadow: 0 8px 32px rgba(0,184,217,0.3);
+    }
+    .step-num {
+      font-size: 1.6rem; font-weight: 900;
+      color: #fff; font-family: 'Inter', sans-serif;
+    }
+    .step-item h3 {
+      font-size: 1.1rem; font-weight: 700;
+      margin-bottom: 12px; text-align: center; line-height: 1.5;
+      word-break: keep-all; overflow-wrap: break-word;
+    }
+    .step-item p {
+      font-size: 0.9rem; color: var(--text-muted);
+      text-align: center; line-height: 1.85;
+      word-break: keep-all; overflow-wrap: break-word;
+    }
+    .step-tag {
+      display: inline-block;
+      font-size: 0.72rem; font-weight: 700;
+      padding: 4px 12px; border-radius: 50px;
+      background: var(--bg-dark); color: var(--primary);
+      margin-bottom: 16px;
+      text-align: center; width: 100%;
+    }
+
+    /* ===================== EASY ===================== */
+    .section-easy {
+      background: linear-gradient(135deg, #020A12 0%, #050D18 50%, #071828 100%);
+    }
+    .section-easy .section-eyebrow { color: var(--accent); }
+    .section-easy .section-title { color: #fff; }
+    .section-easy .section-lead { color: rgba(255,255,255,0.65); }
+
+    .easy-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+    }
+    .easy-card {
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: var(--radius);
+      padding: 36px 28px;
+      backdrop-filter: blur(8px);
+      transition: transform 0.25s, background 0.25s;
+    }
+    .easy-card:hover { transform: translateY(-4px); background: rgba(255,255,255,0.1); }
+
+    .easy-fear {
+      display: flex; align-items: center; gap: 10px;
+      margin-bottom: 20px;
+    }
+    .easy-fear-label {
+      font-size: 0.8rem; font-weight: 700;
+      color: rgba(255,255,255,0.4); letter-spacing: 0.05em;
+    }
+    .easy-fear-text {
+      font-size: 1rem; font-weight: 700;
+      color: rgba(255,255,255,0.6);
+      text-decoration: line-through;
+      text-decoration-color: rgba(245,158,11,0.6);
+    }
+    .easy-answer {
+      background: rgba(0,184,217,0.15);
+      border-left: 3px solid var(--primary);
+      border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+      padding: 16px 20px; margin-bottom: 16px;
+    }
+    .easy-answer p {
+      font-size: 0.95rem; font-weight: 600; color: rgba(255,255,255,0.9);
+      line-height: 1.7;
+    }
+    .easy-card > p {
+      font-size: 0.875rem; color: rgba(255,255,255,0.5); line-height: 1.85;
+    }
+
+    /* ===================== VOICES ===================== */
+    .section-voices { background: var(--bg); }
+
+    .voices-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+    }
+    .voice-card {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 32px 28px;
+      position: relative;
+      transition: transform 0.25s, box-shadow 0.25s;
+    }
+    .voice-card:hover { transform: translateY(-4px); box-shadow: var(--shadow); }
+
+    .voice-quote-icon {
+      color: var(--primary-light); font-size: 40px;
+      line-height: 1; margin-bottom: 16px; display: block;
+      font-family: Georgia, serif;
+    }
+    .voice-text {
+      font-size: 0.95rem; line-height: 1.9;
+      color: var(--text);
+      margin-bottom: 24px;
+      word-break: keep-all; overflow-wrap: break-word;
+    }
+    .voice-author {
+      display: flex; align-items: center; gap: 12px;
+      padding-top: 20px;
+      border-top: 1px solid var(--border);
+    }
+    .voice-avatar {
+      width: 44px; height: 44px; border-radius: 50%;
+      background: linear-gradient(135deg, var(--primary), var(--primary-light));
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .voice-avatar .material-icons { color: #fff; font-size: 20px; }
+    .voice-name { font-size: 0.9rem; font-weight: 700; }
+    .voice-role { font-size: 0.8rem; color: var(--text-muted); margin-top: 2px; }
+
+    /* ===================== FAQ ===================== */
+    .section-faq { background: var(--white); }
+
+    .faq-list {
+      max-width: 780px; margin: 0 auto;
+      display: flex; flex-direction: column; gap: 12px;
+    }
+    .faq-item {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+    }
+    .faq-q {
+      padding: 24px 28px;
+      display: flex; align-items: center; justify-content: space-between; gap: 16px;
+      cursor: pointer;
+      font-weight: 700; font-size: 0.95rem;
+      transition: background 0.2s;
+      user-select: none;
+    }
+    .faq-q:hover { background: var(--bg-dark); }
+    .faq-q .material-icons {
+      flex-shrink: 0; transition: transform 0.3s;
+      color: var(--primary);
+    }
+    .faq-item.open .faq-q .material-icons { transform: rotate(180deg); }
+    .faq-a {
+      padding: 0 28px;
+      max-height: 0; overflow: hidden;
+      transition: max-height 0.4s ease, padding 0.3s ease;
+    }
+    .faq-item.open .faq-a {
+      max-height: 200px;
+      padding: 0 28px 24px;
+    }
+    .faq-a p { font-size: 0.9rem; color: var(--text-muted); line-height: 1.9; }
+
+    /* ===================== FINAL CTA ===================== */
+    .section-cta {
+      background: linear-gradient(135deg, #020A12 0%, #050D18 40%, #071828 70%, #0A2030 100%);
+      position: relative; overflow: hidden;
+    }
+    .cta-blob-1 {
+      position: absolute; width: 500px; height: 500px; border-radius: 50%;
+      background: rgba(245,158,11,0.08); filter: blur(80px);
+      top: -100px; right: -100px; pointer-events: none;
+    }
+    .cta-blob-2 {
+      position: absolute; width: 350px; height: 350px; border-radius: 50%;
+      background: rgba(6,182,212,0.08); filter: blur(80px);
+      bottom: -50px; left: -50px; pointer-events: none;
+    }
+    .section-cta .section-inner { position: relative; z-index: 1; text-align: center; }
+    .section-cta .section-eyebrow { color: var(--accent); }
+    .section-cta .section-title { color: #fff; }
+    .section-cta .section-lead { color: rgba(255,255,255,0.7); margin-bottom: 48px; }
+
+    .cta-box {
+      background: rgba(255,255,255,0.07);
+      border: 1px solid rgba(255,255,255,0.15);
+      border-radius: var(--radius-lg);
+      padding: 56px 48px;
+      backdrop-filter: blur(12px);
+      max-width: 600px; margin: 0 auto;
+    }
+    .cta-box h3 {
+      font-size: 1.5rem; font-weight: 800; color: #fff;
+      margin-bottom: 12px; letter-spacing: -0.01em;
+    }
+    .cta-box p { color: rgba(255,255,255,0.65); font-size: 0.95rem; margin-bottom: 32px; }
+
+    .cta-checks {
+      display: flex; flex-direction: column; gap: 10px;
+      margin-bottom: 36px; text-align: left;
+    }
+    .cta-check {
+      display: flex; align-items: center; gap: 10px;
+      font-size: 0.875rem; color: rgba(255,255,255,0.8);
+    }
+    .cta-check .material-icons { font-size: 18px; color: var(--accent); }
+
+    .cta-note { font-size: 0.78rem; color: rgba(255,255,255,0.4); margin-top: 16px; }
+
+    /* ===================== FOOTER ===================== */
+    footer {
+      background: var(--dark);
+      padding: 40px 0;
+      text-align: center;
+    }
+    .footer-inner {
+      max-width: 1100px; margin: 0 auto; padding: 0 24px;
+    }
+    .footer-logo {
+      font-size: 1.1rem; font-weight: 700; color: rgba(255,255,255,0.7);
+      margin-bottom: 8px;
+    }
+    .footer-logo span { color: var(--accent); }
+    footer p { font-size: 0.8rem; color: rgba(255,255,255,0.3); }
+
+    /* ===================== SCROLL ANIMATION ===================== */
+    .fi {
+      opacity: 0;
+      transform: translateY(24px);
+      transition: opacity 0.65s ease, transform 0.65s ease;
+    }
+    .fi.visible { opacity: 1; transform: translateY(0); }
+    .fi.delay-1 { transition-delay: 0.1s; }
+    .fi.delay-2 { transition-delay: 0.2s; }
+    .fi.delay-3 { transition-delay: 0.3s; }
+    .fi.delay-4 { transition-delay: 0.4s; }
+    .fi.delay-5 { transition-delay: 0.5s; }
+
+    /* ===================== RESPONSIVE ===================== */
+    @media (max-width: 768px) {
+      #mainNav { padding: 16px 20px; }
+      #mainNav.scrolled { padding: 12px 20px; }
+      .nav-links { display: none; }
+
+      section { padding: 64px 0; }
+      .section-inner { padding: 0 20px; }
+
+      .hero { padding: 100px 0 64px; }
+      .hero-inner { padding: 0 20px; }
+      .hero h1 { font-size: 2rem; }
+      .hero-actions { flex-direction: column; align-items: flex-start; }
+      .btn-primary, .btn-secondary { width: 100%; justify-content: center; }
+
+      .crisis-grid { grid-template-columns: 1fr; }
+      .crisis-cta-row { flex-direction: column; text-align: center; }
+
+      .possibility-grid { grid-template-columns: 1fr; }
+      .poss-highlight .poss-list { flex-direction: column; }
+
+      .steps-container { grid-template-columns: 1fr; gap: 40px; }
+      .steps-container::before { display: none; }
+
+      .easy-grid { grid-template-columns: 1fr; }
+      .voices-grid { grid-template-columns: 1fr; }
+
+      .cta-box { padding: 36px 24px; }
+    }
+
+    @media (max-width: 1024px) and (min-width: 769px) {
+      .crisis-grid { grid-template-columns: repeat(2, 1fr); }
+      .possibility-grid { grid-template-columns: repeat(2, 1fr); }
+      .poss-highlight { grid-column: 1 / -1; }
+      .easy-grid { grid-template-columns: repeat(2, 1fr); }
+      .voices-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- スクロールプログレスバー -->
+  <div class="scroll-indicator" id="scrollBar"></div>
+
+  <!-- ナビゲーション -->
+  <nav id="mainNav">
+    <a href="#" class="nav-logo">SHIFT<span>AI</span></a>
+    <ul class="nav-links">
+      <li><a href="#crisis">なぜ今？</a></li>
+      <li><a href="#possibility">できること</a></li>
+      <li><a href="#steps">学習の流れ</a></li>
+      <li><a href="#faq">FAQ</a></li>
+    </ul>
+    <a href="#cta" class="nav-cta">
+      <span class="material-icons">event</span>
+      参加登録
+    </a>
+  </nav>
+
+  <!-- ヒーロー -->
+  <section class="hero">
+    <div class="hero-blob blob-1"></div>
+    <div class="hero-blob blob-2"></div>
+    <div class="hero-blob blob-3"></div>
+    <div class="hero-inner">
+      <div class="hero-content">
+        <p class="hero-eyebrow fi">
+          <span class="material-icons">lock</span>
+          SHIFT AI スタッフ限定 Claude&nbsp;Code 勉強会
+        </p>
+        <h1 class="fi delay-1">
+          あなたの分身が、<br>
+          <span class="accent-word">24時間365日働く<br>時代が来た。</span>
+        </h1>
+        <p class="hero-sub fi delay-2">
+          Claude&nbsp;Codeを使いこなしたスタッフとそうでないスタッフ。<br>
+          この差は、毎週静かに広がっていく。<br>
+          今すぐ第一歩を踏み出す人だけが、この波に乗れる。
+        </p>
+        <div class="hero-actions fi delay-3">
+          <a href="#cta" class="btn-primary">
+            <span class="material-icons">rocket_launch</span>
+            勉強会に参加する
+          </a>
+          <a href="#possibility" class="btn-secondary">
+            <span class="material-icons">play_circle</span>
+            何ができるか見てみる
+          </a>
+        </div>
+        <p class="hero-note fi delay-4">
+          <span class="material-icons">info</span>
+          デスクトップアプリから始めるので、技術的な知識は不要です
+        </p>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- クライシス -->
+  <section class="section-crisis" id="crisis">
+    <div class="section-inner">
+      <p class="section-eyebrow fi">Why Now</p>
+      <h2 class="section-title fi delay-1">
+        「ChatGPTを教えていた時代」は、<br>
+        <span class="accent">もう終わった。</span>
+      </h2>
+      <p class="section-lead fi delay-2">市場の最先端は、すでにClaude&nbsp;Codeが当たり前の世界へ移行しています。<br>知らないうちに置いていかれないために、今動く必要があります。</p>
+
+      <div class="crisis-grid">
+        <div class="crisis-card fi delay-1">
+          <div class="crisis-icon-wrap">
+            <span class="material-icons">trending_up</span>
+          </div>
+          <h3>業界の最先端は、すでにClaude&nbsp;Code前提になっている</h3>
+          <p>「AIを使ってます」だけでは差別化できない時代へ。ChatGPT活用の次のステージが、今まさに始まっています。</p>
+        </div>
+        <div class="crisis-card fi delay-2">
+          <div class="crisis-icon-wrap">
+            <span class="material-icons">timeline</span>
+          </div>
+          <h3>できる人とできない人の差が、毎週広がり続けている</h3>
+          <p>学んでいる人は毎日業務を自動化し、提供価値を高めています。その差は、時間が経つほど縮まらなくなります。</p>
+        </div>
+        <div class="crisis-card fi delay-3">
+          <div class="crisis-icon-wrap">
+            <span class="material-icons">school</span>
+          </div>
+          <h3>会員への提供価値も、講師力も、ここで決まる</h3>
+          <p>Claude&nbsp;Codeに触れていない講師は、いずれ講師と名乗れなくなる時代が来る。これはスキルアップではなく、生存の話です。</p>
+        </div>
+      </div>
+
+      <div class="crisis-cta-row fi">
+        <div class="crisis-cta-text">
+          <h3>でも、今から始めれば間に合う。</h3>
+          <p>まだ使いこなしている人は少数。今動けば、一気に上位に食い込める。</p>
+        </div>
+        <a href="#cta" class="btn-primary">
+          <span class="material-icons">arrow_forward</span>
+          今すぐ参加登録
+        </a>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- できること -->
+  <section class="section-possibility" id="possibility">
+    <div class="section-inner">
+      <div class="section-center">
+        <p class="section-eyebrow fi">What You Can Do</p>
+        <h2 class="section-title fi delay-1">
+          SHIFT AIの仕事、<span class="accent">全部AIに丸投げできる。</span>
+        </h2>
+        <p class="section-lead fi delay-2">
+          LP制作、bot構築、LINE連携、議事録、サムネ作成——<br>
+          各チームの日常業務がClaude&nbsp;Code一つで完結します。
+        </p>
+      </div>
+
+      <div class="possibility-grid">
+        <div class="poss-card fi delay-1">
+          <div class="poss-card-header">
+            <span class="material-icons" style="color: var(--primary);">campaign</span>
+            <span class="poss-dept-badge">マーケティング</span>
+          </div>
+          <h3>マーケチームの業務</h3>
+          <ul class="poss-list">
+            <li><span class="material-icons">check_circle</span>ストーリーズシナリオを一括生成</li>
+            <li><span class="material-icons">check_circle</span>LP・サービスページを自動作成</li>
+            <li><span class="material-icons">check_circle</span>メール・LINEワークフロー設計</li>
+          </ul>
+        </div>
+        <div class="poss-card fi delay-2">
+          <div class="poss-card-header">
+            <span class="material-icons" style="color: var(--primary);">video_call</span>
+            <span class="poss-dept-badge">ウェビナーチーム</span>
+          </div>
+          <h3>ウェビナーチームの業務</h3>
+          <ul class="poss-list">
+            <li><span class="material-icons">check_circle</span>企画案を1ヶ月分まとめて出力</li>
+            <li><span class="material-icons">check_circle</span>司会台本・進行シートを自動生成</li>
+            <li><span class="material-icons">check_circle</span>アンケート集計・分析レポート作成</li>
+          </ul>
+        </div>
+        <div class="poss-card fi delay-3">
+          <div class="poss-card-header">
+            <span class="material-icons" style="color: var(--primary);">support_agent</span>
+            <span class="poss-dept-badge">CS チーム</span>
+          </div>
+          <h3>CSチームの業務</h3>
+          <ul class="poss-list">
+            <li><span class="material-icons">check_circle</span>FAQ自動応答botを構築</li>
+            <li><span class="material-icons">check_circle</span>引き継ぎマニュアルを即作成</li>
+            <li><span class="material-icons">check_circle</span>問い合わせ対応テンプレート生成</li>
+          </ul>
+        </div>
+        <div class="poss-card fi delay-1">
+          <div class="poss-card-header">
+            <span class="material-icons" style="color: var(--primary);">event</span>
+            <span class="poss-dept-badge">イベントチーム</span>
+          </div>
+          <h3>イベントチームの業務</h3>
+          <ul class="poss-list">
+            <li><span class="material-icons">check_circle</span>タイムテーブルと交番表を自動出力</li>
+            <li><span class="material-icons">check_circle</span>司会台本を役割別に生成</li>
+            <li><span class="material-icons">check_circle</span>イベント試算表・予算管理シート</li>
+          </ul>
+        </div>
+        <div class="poss-card fi delay-2">
+          <div class="poss-card-header">
+            <span class="material-icons" style="color: var(--primary);">palette</span>
+            <span class="poss-dept-badge">デザイン・制作</span>
+          </div>
+          <h3>デザイン・制作の業務</h3>
+          <ul class="poss-list">
+            <li><span class="material-icons">check_circle</span>サムネをManus連携で高速制作</li>
+            <li><span class="material-icons">check_circle</span>HTMLで資料・LPを即生成</li>
+            <li><span class="material-icons">check_circle</span>SNS投稿画像のバリエーション展開</li>
+          </ul>
+        </div>
+        <div class="poss-card poss-highlight fi delay-3">
+          <div class="poss-card-header">
+            <span class="material-icons" style="color: var(--accent);">star</span>
+            <span class="poss-dept-badge">全チーム共通</span>
+          </div>
+          <h3>すべてのスタッフが使えるようになる機能</h3>
+          <ul class="poss-list">
+            <li><span class="material-icons">check_circle</span>スキルズ作成・共有で知識を資産化</li>
+            <li><span class="material-icons">check_circle</span>MDファイルで業務を標準化・引き継ぎ</li>
+            <li><span class="material-icons">check_circle</span>Discord / Slack / LINE bot 連携</li>
+            <li><span class="material-icons">check_circle</span>GASインタープリターで業務自動化</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- 3ステップ -->
+  <section class="section-steps" id="steps">
+    <div class="section-inner">
+      <div class="section-center">
+        <p class="section-eyebrow fi">How It Works</p>
+        <h2 class="section-title fi delay-1">たった<span class="accent">3ステップ</span>で、AIを使いこなす</h2>
+        <p class="section-lead fi delay-2">
+          難しそうに見えて、実はシンプル。<br>
+          この3ステップを踏めば、誰でも実務で使えるレベルに到達できます。
+        </p>
+      </div>
+
+      <div class="steps-container">
+        <div class="step-item fi delay-1">
+          <span class="step-tag">第1回〜第2回</span>
+          <div class="step-num-wrap">
+            <span class="step-num">01</span>
+          </div>
+          <h3>環境設定して<br>まず動かす</h3>
+          <p>デスクトップアプリをインストールしてClaude&nbsp;Codeを起動。ターミナル不要。「思ったより簡単」と感じる瞬間がここ。</p>
+        </div>
+        <div class="step-item fi delay-2">
+          <span class="step-tag">第3回〜第5回</span>
+          <div class="step-num-wrap">
+            <span class="step-num">02</span>
+          </div>
+          <h3>スキルズとMDで<br>AIを育てる</h3>
+          <p>MDファイルとスキルズの作り方を習得。優秀なメンバーの能力を丸ごとAIに覚えさせ、24時間使える状態を作る。</p>
+        </div>
+        <div class="step-item fi delay-3">
+          <span class="step-tag">第6回以降</span>
+          <div class="step-num-wrap">
+            <span class="step-num">03</span>
+          </div>
+          <h3>実務に投入して<br>どんどん自動化</h3>
+          <p>自分の業務をAIに渡していく。スキルズをチームでシェアし、組織全体の生産性が加速していく。</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 不安解消 -->
+  <section class="section-easy">
+    <div class="section-inner">
+      <div class="section-center">
+        <p class="section-eyebrow fi">Fear Removal</p>
+        <h2 class="section-title fi delay-1">「難しそう」は<span style="color:var(--accent)">思い込みだった。</span></h2>
+        <p class="section-lead fi delay-2">
+          触ってみたメンバー全員が「なんだ、これで良かったんだ」と言います。<br>
+          よくある3つの不安を、正直にお答えします。
+        </p>
+      </div>
+
+      <div class="easy-grid">
+        <div class="easy-card fi delay-1">
+          <div class="easy-fear">
+            <span class="easy-fear-label">不安</span>
+            <span class="easy-fear-text">ターミナルが怖い</span>
+          </div>
+          <div class="easy-answer">
+            <p>デスクトップアプリから始めればOK。ターミナルは一切触りません。</p>
+          </div>
+          <p>この勉強会では最初からデスクトップアプリを使います。画面も直感的で、初日からスムーズに操作できます。</p>
+        </div>
+        <div class="easy-card fi delay-2">
+          <div class="easy-fear">
+            <span class="easy-fear-label">不安</span>
+            <span class="easy-fear-text">エラーが出たら止まる</span>
+          </div>
+          <div class="easy-answer">
+            <p>エラーが出たら、そのままAIに聞けば全部解決してくれます。</p>
+          </div>
+          <p>「このエラーどういう意味？」と貼り付けるだけ。解決策を丁寧に教えてくれるので、詰まることがありません。</p>
+        </div>
+        <div class="easy-card fi delay-3">
+          <div class="easy-fear">
+            <span class="easy-fear-label">不安</span>
+            <span class="easy-fear-text">自分には難しすぎる</span>
+          </div>
+          <div class="easy-answer">
+            <p>触った全員が「思ったより簡単だった」と言っています。</p>
+          </div>
+          <p>難しく見えるのは外見だけ。実際に動かすと「雑に依頼しても全部やってくれる」ことがすぐわかります。</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- 声 -->
+  <section class="section-voices">
+    <div class="section-inner">
+      <div class="section-center">
+        <p class="section-eyebrow fi">Member Voices</p>
+        <h2 class="section-title fi delay-1">触ってみたら、<span class="accent">世界が変わった。</span></h2>
+        <p class="section-lead fi delay-2">
+          すでに Claude&nbsp;Code を使い始めたメンバーのリアルな声です。
+        </p>
+      </div>
+
+      <div class="voices-grid">
+        <div class="voice-card fi delay-1">
+          <span class="voice-quote-icon">"</span>
+          <p class="voice-text">難しそうで触るのがずっと怖かったけど、デスクトップアプリを開いた瞬間に「これ、いける」と思いました。今では業務資料もサムネもAIに丸投げしてます。</p>
+          <div class="voice-author">
+            <div class="voice-avatar"><span class="material-icons">person</span></div>
+            <div>
+              <div class="voice-name">M さん</div>
+              <div class="voice-role">業務改善チーム</div>
+            </div>
+          </div>
+        </div>
+        <div class="voice-card fi delay-2">
+          <span class="voice-quote-icon">"</span>
+          <p class="voice-text">最初はコピー係みたいにAIを使っていました。Claude&nbsp;Codeを覚えてから、自分の仕事の設計が根本から変わりました。「指示を出す側」になった感覚があります。</p>
+          <div class="voice-author">
+            <div class="voice-avatar"><span class="material-icons">person</span></div>
+            <div>
+              <div class="voice-name">K さん</div>
+              <div class="voice-role">ウェビナーチーム</div>
+            </div>
+          </div>
+        </div>
+        <div class="voice-card fi delay-3">
+          <span class="voice-quote-icon">"</span>
+          <p class="voice-text">LP1本作るのに何時間もかかっていたのが、今は15分で完成します。スキルズのおかげで品質も上がって、チームで共有できるのが本当に便利です。</p>
+          <div class="voice-author">
+            <div class="voice-avatar"><span class="material-icons">person</span></div>
+            <div>
+              <div class="voice-name">A さん</div>
+              <div class="voice-role">マーケティングチーム</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section class="section-faq" id="faq">
+    <div class="section-inner">
+      <div class="section-center">
+        <p class="section-eyebrow fi">FAQ</p>
+        <h2 class="section-title fi delay-1">よくある<span class="accent">ご質問</span></h2>
+      </div>
+
+      <div class="faq-list">
+        <div class="faq-item fi delay-1">
+          <div class="faq-q">
+            <span>参加は強制ですか？</span>
+            <span class="material-icons">expand_more</span>
+          </div>
+          <div class="faq-a">
+            <p>強制ではありません。ただし、Claude&nbsp;Codeを使える人と使えない人の差は毎週広がっています。今後の業務・講師活動においても、習得しているかどうかが大きな差になります。</p>
+          </div>
+        </div>
+        <div class="faq-item fi delay-2">
+          <div class="faq-q">
+            <span>全くの初心者でも参加できますか？</span>
+            <span class="material-icons">expand_more</span>
+          </div>
+          <div class="faq-a">
+            <p>もちろんです。デスクトップアプリから始めるので、技術的な知識は一切不要です。「AIに話しかけたことがある」レベルで十分です。</p>
+          </div>
+        </div>
+        <div class="faq-item fi delay-3">
+          <div class="faq-q">
+            <span>毎回参加しないといけませんか？</span>
+            <span class="material-icons">expand_more</span>
+          </div>
+          <div class="faq-a">
+            <p>参加が難しい回があっても大丈夫です。ただし、宿題の実践と提出を強くお勧めします。実際に手を動かすことが、最短で習得できる唯一の方法です。</p>
+          </div>
+        </div>
+        <div class="faq-item fi delay-1">
+          <div class="faq-q">
+            <span>どんな機材が必要ですか？</span>
+            <span class="material-icons">expand_more</span>
+          </div>
+          <div class="faq-a">
+            <p>PCとClaude（有料プラン）があれば参加できます。MacでもWindowsでも問題ありません。セキュリティ面でも安心して使えます。</p>
+          </div>
+        </div>
+        <div class="faq-item fi delay-2">
+          <div class="faq-q">
+            <span>勉強会の頻度・時間帯は？</span>
+            <span class="material-icons">expand_more</span>
+          </div>
+          <div class="faq-a">
+            <p>週1〜2回開催予定です。具体的なスケジュールはSlackでお知らせします。</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 最終CTA -->
+  <section class="section-cta" id="cta">
+    <div class="cta-blob-1"></div>
+    <div class="cta-blob-2"></div>
+    <div class="section-inner">
+      <p class="section-eyebrow fi">Join Us</p>
+      <h2 class="section-title fi delay-1">あなたの24時間365日を変える、<br>第一歩を踏み出そう。</h2>
+      <p class="section-lead fi delay-2">
+        今、動き出した人だけが先頭に立てる。<br>
+        SHIFT AIのスタッフとして、このタイミングを逃さないでください。
+      </p>
+
+      <div class="cta-box fi delay-3">
+        <h3>Claude&nbsp;Code 勉強会に参加する</h3>
+        <p>スキルを身につけ、AI時代のSHIFT AIを一緒に引っ張っていきましょう。</p>
+        <div class="cta-checks">
+          <div class="cta-check">
+            <span class="material-icons">check_circle</span>
+            初心者OK — デスクトップアプリから丁寧にスタート
+          </div>
+          <div class="cta-check">
+            <span class="material-icons">check_circle</span>
+            宿題形式で実務に直結した内容を習得
+          </div>
+          <div class="cta-check">
+            <span class="material-icons">check_circle</span>
+            スキルズを共有してチーム全体で成長
+          </div>
+          <div class="cta-check">
+            <span class="material-icons">check_circle</span>
+            スケジュールはSlack通知
+          </div>
+        </div>
+        <a href="#" class="btn-primary" style="width:100%; justify-content:center; font-size:1.1rem; padding:20px;">
+          <span class="material-icons">rocket_launch</span>
+          参加登録フォームへ
+        </a>
+        <p class="cta-note">参加登録後、詳細をSlackでご案内します</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- フッター -->
+  <footer>
+    <div class="footer-inner">
+      <p class="footer-logo">SHIFT<span>AI</span></p>
+      <p>Claude&nbsp;Code 勉強会 — SHIFT AI スタッフ向け内部プログラム</p>
+    </div>
+  </footer>
+
+  <script>
+    // スクロールプログレスバー
+    const scrollBar = document.getElementById('scrollBar');
+    window.addEventListener('scroll', () => {
+      const scrolled = (window.scrollY / (document.documentElement.scrollHeight - window.innerHeight)) * 100;
+      scrollBar.style.width = scrolled + '%';
+    }, { passive: true });
+
+    // ナビ背景切替
+    const mainNav = document.getElementById('mainNav');
+    window.addEventListener('scroll', () => {
+      mainNav.classList.toggle('scrolled', window.scrollY > 40);
+    }, { passive: true });
+
+    // スクロールアニメーション
+    document.addEventListener('DOMContentLoaded', () => {
+      const items = Array.from(document.querySelectorAll('.fi'));
+      const show = el => el.classList.add('visible');
+      if (!('IntersectionObserver' in window)) { items.forEach(show); return; }
+      const io = new IntersectionObserver((entries, observer) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) { show(entry.target); observer.unobserve(entry.target); }
+        });
+      }, { threshold: 0.06 });
+      items.forEach(el => {
+        const rect = el.getBoundingClientRect();
+        if (rect.top < window.innerHeight * 0.92) show(el);
+        else io.observe(el);
+      });
+    });
+
+    // FAQアコーディオン
+    document.querySelectorAll('.faq-q').forEach(q => {
+      q.addEventListener('click', () => {
+        const item = q.closest('.faq-item');
+        const isOpen = item.classList.contains('open');
+        document.querySelectorAll('.faq-item.open').forEach(i => i.classList.remove('open'));
+        if (!isOpen) item.classList.add('open');
+      });
+    });
+  </script>
+</body>
+</html>
